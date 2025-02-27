@@ -10,7 +10,10 @@ while cap.isOpened():
     if not ret:
         print("Failed to get frame")
         break
-    
+  
+    time.sleep(1)
+
+    # frame = cv2.resize(frame, (320, 320))
     results = model(frame)
     
     for result in results:
@@ -22,9 +25,9 @@ while cap.isOpened():
 
             center_x = (x1 + x2) / 2
             center_y = (y1 + y2) / 2
-            print(f"Detected {label} at ({center_x}, {center_y}) with confidence {conf:.2f}")
+            print(f"Detected {label} at ({center_x:.0f}, {center_y:.0f}) with confidence {conf:.2f}")
 
-    time.sleep(1)
+    time.sleep(2)
     # annotated_frame = results[0].plot()
     
     # cv2.imshow('YOLO Detection', annotated_frame)
