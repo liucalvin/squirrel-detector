@@ -1,14 +1,19 @@
-from gpiozero import LED
+import RPi.GPIO as GPIO
 from time import sleep
 
-led = LED(17)  # Set GPIO 17 as an output
+# GPIO setup
+servo_pin = 13
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(servo_pin, GPIO.OUT)
 
-while True:
-    led.on()
-    print("GPIO 17 is ON")
-    sleep(1)  # Wait for 1 second
+# PWM setup
+pwm = GPIO.PWM(servo_pin, 50)  # 50 Hz (standard for servos)
+pwm.start(0)
 
-    led.off()
-    print("GPIO 17 is OFF")
-    sleep(1)  # Wait for 1 second
-
+def set_angle(angle):
+    duty = angle / 18 + 2
+    GPIO.output(servo_pin, True)
+    pwm.ChangeDutyCycle(duty)
+    sleep(1)
+    GPIO.output(servo_pin, False)
+    pwm.Change

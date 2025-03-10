@@ -1,6 +1,6 @@
-current motor code version:
+current stable motor code version:
 test_motors.py
 
 
-current camera + motors: 
+current stable camera + motors version: 
 v2_camera_track.py
