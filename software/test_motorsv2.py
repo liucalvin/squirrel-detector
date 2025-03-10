@@ -4,39 +4,39 @@ import signal
 import sys
 
 # Initialize PWM for two motors on GPIO 12 and 13
-yaw_motor = PWMOutputDevice(12, frequency=50, initial_value=0)
-pitch_motor = PWMOutputDevice(13, frequency=50, initial_value=0)
+yaw_motor = PWMOutputDevice(12, frequency=200, initial_value=0)  
+pitch_motor = PWMOutputDevice(13, frequency=200, initial_value=0)
 
 # Define motor positions
 YAW_MIN = -1  
 YAW_MAX = 1   
-PITCH_MIN = 0.7
-PITCH_MAX = 0.8
+PITCH_MIN = 0.5
+PITCH_MAX = 1
 
-# Define the range for the duty cycle
-YAW_MIN_DUTY = 0.05  
-YAW_MAX_DUTY = 0.11  
-YAW_MIN_DUTY = 0.08  
-YAW_MAX_DUTY = 0.11  
+# Define the range for the duty cycle (ensure it's well-calibrated)
+MIN_DUTY = 0.05  
+MAX_DUTY = 0.11  
 
 # Smooth movement parameters
-STEPS = 100   # More steps = smoother movement
-DELAY = 0.03  # Time between steps
+STEPS = 300  
+DELAY = 0.005  
 
-def set_motor_position(motor, position, min_pos, max_pos):
-    """Convert position to duty cycle and move motor."""
-    duty_cycle = ((position - min_pos) / (max_pos - min_pos)) * (YAW_MAX_DUTY - YAW_MIN_DUTY) + YAW_MIN_DUTY
-    motor.value = duty_cycle
-    print(f"Motor on GPIO {motor.pin.number}: Position {position:.3f}, Duty {duty_cycle:.5f}")
-    
+def position_to_duty(position, min_pos, max_pos):
+    """Convert position (-1 to 1 or custom range) to PWM duty cycle with clamping."""
+    duty = ((position - min_pos) / (max_pos - min_pos)) * (MAX_DUTY - MIN_DUTY) + MIN_DUTY
+    return max(MIN_DUTY, min(MAX_DUTY, duty))  # Clamping to prevent jumps
+
 def move_slowly(motor, start, end, steps=STEPS, delay=DELAY):
-    """Move motor gradually from start to end position."""
+    """Move motor smoothly between two positions using fine steps."""
     step_size = (end - start) / steps
     for i in range(steps + 1):
-        set_motor_position(motor, start + i * step_size, YAW_MIN if motor == yaw_motor else PITCH_MIN, 
-                           YAW_MAX if motor == yaw_motor else PITCH_MAX)
+        position = start + i * step_size
+        duty_cycle = position_to_duty(position, YAW_MIN if motor == yaw_motor else PITCH_MIN, 
+                                      YAW_MAX if motor == yaw_motor else PITCH_MAX)
+        motor.value = duty_cycle
         sleep(delay)
-    motor.off()  # Stop PWM to prevent jitter
+    sleep(0.1)  # Small pause to ensure no quick resets
+    motor.off()  # Stop PWM after motion to prevent jitter
 
 def cleanup(*args):
     """Ensure motors turn off before exiting."""
