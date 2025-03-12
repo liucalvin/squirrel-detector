@@ -2,6 +2,7 @@ import pyrealsense2 as rs
 import numpy as np
 import cv2
 from flask import Flask, Response
+from utils.fluid_velocity_calculator import exit_velocity, find_launch_angle
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -13,6 +14,9 @@ config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
 
 # Start streaming
 pipeline.start(config)
+
+EXIT_PRESSURE = 100 # psi
+NOZZLE_HEIGHT = 0.2 # meters above ground
 
 def generate_frames():
     try:
@@ -26,8 +30,28 @@ def generate_frames():
             # Convert depth frame to numpy array
             depth_image = np.asanyarray(depth_frame.get_data())
 
+            # Get the center depth value
+            height, width = depth_image.shape
+            center_x = width // 2
+            center_y = height // 2
+            center_depth = depth_image[center_y, center_x]/1000.0  # Depth in meters
+
             # Apply colormap for visualization
             depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+
+            # get fluid calculations
+            v0 = exit_velocity(EXIT_PRESSURE)
+            theta = find_launch_angle(v0, NOZZLE_HEIGHT, center_depth)
+
+            # Overlay the center depth value on the image
+            size = 4
+            cv2.circle(depth_colormap, (center_x, center_y), radius=size+2, color=(0, 0, 0), thickness=-1)
+            cv2.line(depth_colormap, (center_x - size, center_y - size), (center_x + size, center_y + size), (255, 255, 255), 2)
+            cv2.line(depth_colormap, (center_x + size, center_y - size), (center_x - size, center_y + size), (255, 255, 255), 2)
+            cv2.putText(depth_colormap, f"Center Depth: {round(center_depth, 1)} m", (20, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.putText(depth_colormap, f"Nozzle Angle: {round(theta, 1)} deg", (20, 60),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
 
             # Encode the frame to JPEG
             ret, buffer = cv2.imencode('.jpg', depth_colormap)

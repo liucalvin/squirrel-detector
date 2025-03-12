@@ -5,7 +5,6 @@ from gpiozero import Servo
 from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import Device
 import numpy as np
-import math
 
 app = Flask(__name__)
 
@@ -32,19 +31,19 @@ model = YOLO("yolo11n.pt")  # Replace with the path to your YOLOv11 model
 with open("coco.names", "r") as f:
     class_names = f.read().strip().split("\n")
 
-def calculate_angle(person_center_x):
-    # Calculate the angle based on the person's position in the frame
-    angle = (person_center_x - frame_center_x) / frame_width * 90  # Assuming 90 degrees FOV
-    return angle
-
-def move_servo_by_angle(angle):
+def move_servo_to_center_person(person_center_x):
     global current_position
 
-    # Convert angle to servo value (-1 to 1)
-    servo_value = angle / 90  # Assuming 90 degrees FOV
+    # Calculate the horizontal distance between the person's center and the frame's center
+    distance = person_center_x - frame_center_x
 
-    # Move the servo by the calculated value
-    current_position = max(-1, min(1, current_position + servo_value))
+    # Move the servo to minimize the distance
+    if distance > 50:  # Person is to the right of the center
+        current_position = min(1, current_position + step_size)  # Move right
+    elif distance < -50:  # Person is to the left of the center
+        current_position = max(-1, current_position - step_size)  # Move left
+
+    # Update the servo position
     servo.value = current_position
 
 def generate_frames():
@@ -67,12 +66,8 @@ def generate_frames():
                     # Calculate the center of the bounding box
                     person_center_x = (x1 + x2) // 2
 
-                    # Calculate the angle to move the servo
-                    angle = calculate_angle(person_center_x)
-
-                    # Move the servo by 15 degrees in the direction of the person
-                    if abs(angle) > 15:
-                        move_servo_by_angle(15 * (angle / abs(angle)))
+                    # Move the servo to center the person
+                    move_servo_to_center_person(person_center_x)
 
                     # Draw bounding box and center point
                     cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
