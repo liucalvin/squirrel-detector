@@ -28,8 +28,11 @@ def set_servo_angle(angle):
     if duty_cycle < 500 or duty_cycle > 2500:
         raise ValueError(f"Invalid duty cycle: {duty_cycle}")
     
-    print(f"{gpio_chip} {servo_pin} {duty_cycle}")
-    lgpio.tx_pwm(gpio_chip, servo_pin, 50, duty_cycle)  # 50 Hz, duty_cycle in microseconds
+    # Convert duty cycle to a percentage (0-100)
+    duty_cycle_percent = (duty_cycle - 500) / 2000 * 100
+    
+    print(f"Setting angle: {angle} degrees, Duty Cycle: {duty_cycle_percent:.2f}%")
+    lgpio.tx_pwm(gpio_chip, servo_pin, 50, duty_cycle_percent)  # 50 Hz, duty_cycle in percentage
 
 try:
     while True:

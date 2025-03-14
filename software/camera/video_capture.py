@@ -17,7 +17,7 @@ def generate():
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
     cap.release()
 
-@app.route('/video')
+@app.route('/')
 def video_feed():
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
