@@ -144,6 +144,22 @@ def move_up():
 def move_down():
     return controller.move_down()
 
+@app.route('/move_left_big')
+def move_left_big():
+    return controller.move_left(step_size=10)
+
+@app.route('/move_right_big')
+def move_right_big():
+    return controller.move_right(step_size=10)
+
+@app.route('/move_up_big')
+def move_up_big():
+    return controller.move_up(step_size=10)
+
+@app.route('/move_down_big')
+def move_down_big():
+    return controller.move_down(step_size=10)
+
 @app.route('/water_on')
 def water_on():
     return controller.turn_water_on()

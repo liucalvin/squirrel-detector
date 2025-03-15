@@ -12,22 +12,22 @@ class MotorController:
         self.ser = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)  # Baud rate set to 115200
         print("Serial port opened.")  # Debug print
 
-    def move_left(self, step_size=10):
+    def move_left(self, step_size=2):
         self.motor_angle_1 = min(180, self.motor_angle_1 + step_size)  # Limit to 180 degrees
         self.send_serial_command()
         return f"Moved Motor 1 Left to {self.motor_angle_1} degrees"
 
-    def move_right(self, step_size=10):
+    def move_right(self, step_size=2):
         self.motor_angle_1 = max(0, self.motor_angle_1 - step_size)  # Limit to 0 degrees
         self.send_serial_command()
         return f"Moved Motor 1 Right to {self.motor_angle_1} degrees"
 
-    def move_up(self, step_size=10):
+    def move_up(self, step_size=2):
         self.motor_angle_2 = min(180, self.motor_angle_2 + step_size)  # Limit to 180 degrees
         self.send_serial_command()
         return f"Moved Motor 2 Up to {self.motor_angle_2} degrees"
 
-    def move_down(self, step_size=10):
+    def move_down(self, step_size=2):
         self.motor_angle_2 = max(0, self.motor_angle_2 - step_size)  # Limit to 0 degrees
         self.send_serial_command()
         return f"Moved Motor 2 Down to {self.motor_angle_2} degrees"

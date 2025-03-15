@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motor and Water Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .video-feed {
+            width: 48%;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .video-feed img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .controls {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .controls h2 {
+            margin-top: 0;
+        }
+        .controls p {
+            margin: 10px 0;
+        }
+        .controls ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .controls ul li {
+            margin: 5px 0;
+        }
+        .controls ul li strong {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="video-feed">
+            <h2>RGB Stream with Object Detection</h2>
+            <img src="{{ url_for('video_feed_rgb') }}" alt="RGB Feed">
+        </div>
+        <div class="video-feed">
+            <h2>Depth Stream with Center Depth</h2>
+            <img src="{{ url_for('video_feed_depth') }}" alt="Depth Feed">
+        </div>
+    </div>
+    <div class="controls">
+      <button onclick="toggleMotorTracking(true)">Enable Motor Tracking</button>
+      <button onclick="toggleMotorTracking(false)">Disable Motor Tracking</button>
+    </div>
+  
+    <script>
+        function toggleMotorTracking(enabled) {
+            fetch('/toggle_motor_tracking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `motor_tracking=${enabled}`
+            })
+            .then(response => response.text())
+            .then(data => console.log(data));
+        }
+    </script>
+
+    <script>
+        // Function to send a command to the server
+        function sendCommand(endpoint) {
+            fetch(endpoint)
+                .then(response => response.text())
+                .then(data => console.log(data));
+        }
+
+        // Detect key presses
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowLeft':
+                    sendCommand('/move_left');
+                    break;
+                case 'ArrowRight':
+                    sendCommand('/move_right');
+                    break;
+                case 'ArrowUp':
+                    sendCommand('/move_up');
+                    break;
+                case 'ArrowDown':
+                    sendCommand('/move_down');
+                    break;
+                case 'a':
+                    sendCommand('/move_left_big');
+                    break;
+                case 'd':
+                    sendCommand('/move_right_big');
+                    break;
+                case 'w':
+                    sendCommand('/move_up_big');
+                    break;
+                case 's':
+                    sendCommand('/move_down_big');
+                    break;
+                case ' ':  // Spacebar
+                    sendCommand('/water_toggle');
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

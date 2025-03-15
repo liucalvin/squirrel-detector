@@ -102,6 +102,18 @@
                 case 'ArrowDown':
                     sendCommand('/move_down');
                     break;
+                case 'a':
+                    sendCommand('/move_left_big');
+                    break;
+                case 'd':
+                    sendCommand('/move_right_big');
+                    break;
+                case 'w':
+                    sendCommand('/move_up_big');
+                    break;
+                case 's':
+                    sendCommand('/move_down_big');
+                    break;
                 case ' ':  // Spacebar
                     sendCommand('/water_toggle');
                     break;
