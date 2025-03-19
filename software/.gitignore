@@ -2,4 +2,4 @@
 *.pt
 *.log
 *.swp
-
+**/__pycache__/

@@ -35,7 +35,7 @@ class CameraController:
         self.tracked_classes = [0, 21]  # Class IDs for "person" and "bear"
 
         # Proportional control gain
-        self.kp = 0.05  # Proportional gain (adjust this value for responsiveness)
+        self.kp = 0.08  # Proportional gain (adjust this value for responsiveness)
 
         # Store the latest detection results
         self.latest_boxes = []  # Stores bounding boxes for detected objects

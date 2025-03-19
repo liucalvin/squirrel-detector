@@ -43,4 +43,4 @@ def find_launch_angle(v0, h0, z_target):
             min_diff = diff
             best_angle = angle
     
-    return best_angle + 45
+    return best_angle + 65
